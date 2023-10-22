@@ -2,18 +2,28 @@
 
 #include <matrix.h>
 
-template<class T, T DefaultValue>
+template <size_t Dimensions>
+using coordinates = std::array<int, Dimensions>;
+
+template<class T, T DefaultValue, size_t Dimensions>
 class Matrix;
 
-template<class T, T DefaultValue>
+template<class T, T DefaultValue, size_t Dimensions>
 class Proxy{
+    using indices = std::array<int, Dimensions-1>;
 public:
-    Proxy(Matrix<T, DefaultValue> * matrixPtr_, long x_) : matrixPtr(matrixPtr_), cell(0), x(x_) {}
+    Proxy(Matrix<T, DefaultValue, Dimensions> * matrixPtr_, long x_) : matrixPtr(matrixPtr_), cell(0), x(x_) {}
     Proxy& operator[](int y)
     {
         //std::cout<<"Call Proxy& operator[]("<<y<<")"<<std::endl;
-        coord = std::make_pair(x, y);
-        cell = matrixPtr->findByCoordinates(coord);
+        counter++;
+        coord[counter]=y;
+        if(Dimensions-1 == counter)
+        {
+            counter=0;
+            coord[0]=x;
+            cell = matrixPtr->findByCoordinates(coord);
+        }
         return *this;
     }
     Proxy& operator=(T newValue)
@@ -60,7 +70,8 @@ public:
     }
 private:
     long x;
-    std::pair<long, long> coord;
+    int counter=0;
+    coordinates<Dimensions> coord;
     T cell;
-    Matrix<T, DefaultValue>*  matrixPtr;
+    Matrix<T, DefaultValue, Dimensions>*  matrixPtr;
 };

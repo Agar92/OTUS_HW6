@@ -1,5 +1,20 @@
 #pragma once
 
+namespace try_tuple
+{
+    template <typename T, size_t I> 
+    struct tuple_n{
+        template< typename...Args> using type = typename tuple_n<T, I-1>::template type<T, Args...>;
+    };
+
+    template <typename T> 
+    struct tuple_n<T, 0> {
+        template<typename...Args> using type = std::tuple<Args...>;   
+    };
+    template <typename T, size_t I>  using tuple_of = typename tuple_n<T, I>::template type<>;
+//HOW TO USE THIS?
+//tuple_of<double, 3> t;    
+}//namespace try_tuple
 
 namespace variadic{
 

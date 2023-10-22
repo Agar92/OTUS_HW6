@@ -8,49 +8,45 @@
 
 using std::pair, std::map, std::tuple;
 
-template <size_t Dimensions>
-struct coordinates{
-    std::array<int, Dimensions> coord;
-};
-
-template<class T, T DefaultValue>
+template<class T, T DefaultValue, size_t Dimensions>
 class Matrix{
-    using IteratorType = typename map<pair<long, long>, T>::iterator;
+    using IteratorType = typename map<coordinates<Dimensions>, T>::iterator;
 public:
     Matrix() : DefaultCellValue(DefaultValue) {}
-    Proxy<T, DefaultValue> operator[](long x)
+    Proxy<T, DefaultValue, Dimensions> operator[](long x)
     {
         //std::cout<<"Call Proxy<T, DefaultValue> operator[]("<<x<<")"<<std::endl;
-        Proxy<T, DefaultValue> proxy(this, x);
+        Proxy<T, DefaultValue, Dimensions> proxy(this, x);
         return proxy;
     }
     size_t size(){return matrix.size();}
     T getDefaultCellValue(){return DefaultCellValue;}
-    const T& findByCoordinates(pair<long, long> coordinates) const
+    const T& findByCoordinates(coordinates<Dimensions> coord) const
     {
         //std::cout<<"Call const T& findByCoord(pair<long, long> coordinates) const"<<std::endl;
-        auto it = matrix.find(coordinates);
+        auto it = matrix.find(coord);
         if(it == matrix.end()) return DefaultCellValue;
         else                   return it->second;
     }
-    void removeCell(pair<long, long> coordinates)
+    void removeCell(coordinates<Dimensions> coord)
     {
         //std::cout<<"removeCell"<<std::endl;
-        matrix.erase(matrix.find(coordinates));
+        matrix.erase(matrix.find(coord));
     }
-    void insertCell(pair<long, long> coordinates, T value)
+    void insertCell(coordinates<Dimensions> coord, T value)
     {
         //std::cout<<"insertCell"<<std::endl;
-        matrix.emplace(coordinates, value);
+        matrix.emplace(coord, value);
     }
-    void modifyCell(pair<long, long> coordinates, T value)
+    void modifyCell(coordinates<Dimensions> coord, T value)
     {
         //std::cout<<"modifyCell"<<std::endl;
-        matrix.at(coordinates) = value;
+        matrix.at(coord) = value;
     }
-    Iterator<T,IteratorType> begin(){return Iterator<T,IteratorType>(matrix.begin());};
-    Iterator<T,IteratorType> end(){return Iterator<T,IteratorType>(matrix.end());};
+    size_t GetNumberIfDimensions() const {return Dimensions;}
+    Iterator<T,IteratorType, Dimensions> begin(){return Iterator<T,IteratorType, Dimensions>(matrix.begin());};
+    Iterator<T,IteratorType, Dimensions> end(){return Iterator<T,IteratorType, Dimensions>(matrix.end());};
 private:
     const T DefaultCellValue;
-    map<pair<long, long>, T> matrix;
+    map<coordinates<Dimensions>, T> matrix;
 };
